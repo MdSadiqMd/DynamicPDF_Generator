@@ -33,12 +33,17 @@ app.post('/generate-pdf', async (req, res) => {
         const currentDate = new Date();
         const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}.${(currentDate.getMonth() + 1).toString().padStart(2, '0')}.${currentDate.getFullYear()}`;
 
+        const joiningDate = new Date(currentDate.getTime() + 2 * 24 * 60 * 60 * 1000);
+        const formattedJoiningDate = `${joiningDate.getDate().toString().padStart(2, '0')}th ${joiningDate.toLocaleString('default', { month: 'long' })} ${joiningDate.getFullYear()}`;
+
         const toLineX = 65;
         const toLineY = 625;
         const dearLineX = 87;
         const dearLineY = 580;
         const dateLineX = 485;
         const dateLineY = 691;
+        const joiningDateLineX = 453;
+        const joiningDateLineY = 442;
 
         // To text
         firstPage.drawText(`${name},`, {
@@ -53,7 +58,7 @@ app.post('/generate-pdf', async (req, res) => {
         firstPage.drawText(`${name},`, {
             x: dearLineX,
             y: dearLineY,
-            size: 12,
+            size: 10,
             font: timesRomanBoldFont,
             color: rgb(0, 0, 0),
         });
@@ -66,11 +71,19 @@ app.post('/generate-pdf', async (req, res) => {
             font: timesRomanBoldFont,
             color: rgb(0, 0, 0),
         });
+        
+        // Joining date text
+        firstPage.drawText(formattedJoiningDate, {
+            x: joiningDateLineX,
+            y: joiningDateLineY,
+            size: 10,
+            font: timesRomanBoldFont,
+            color: rgb(0, 0, 0),
+        });
 
         const pdfBytes = await pdfDoc.save();
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="OfferLetter_${name}.pdf"`);
-
         res.send(Buffer.from(pdfBytes));
     } catch (error) {
         console.error('Error generating PDF:', error);
