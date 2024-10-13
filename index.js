@@ -7,6 +7,17 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+function getNextReferenceNumber() {
+    const refFilePath = path.join(__dirname, 'lastReferenceNumber.txt');
+    let lastNumber = 0;
+    if (fs.existsSync(refFilePath)) {
+        lastNumber = parseInt(fs.readFileSync(refFilePath, 'utf8'));
+    }
+    const nextNumber = lastNumber + 1;
+    fs.writeFileSync(refFilePath, nextNumber.toString());
+    return nextNumber.toString().padStart(6, '0');
+}
+
 app.get('/', (req, res) => {
     res.send(`
     <form action="/generate-pdf" method="POST">
@@ -36,6 +47,9 @@ app.post('/generate-pdf', async (req, res) => {
         const joiningDate = new Date(currentDate.getTime() + 2 * 24 * 60 * 60 * 1000);
         const formattedJoiningDate = `${joiningDate.getDate().toString().padStart(2, '0')}th ${joiningDate.toLocaleString('default', { month: 'long' })} ${joiningDate.getFullYear()}`;
 
+        const refNumber = getNextReferenceNumber();
+        const fullRefNumber = `SCALEJOBS/ASSOCIATE/${refNumber}`;
+
         const toLineX = 65;
         const toLineY = 625;
         const dearLineX = 87;
@@ -44,8 +58,17 @@ app.post('/generate-pdf', async (req, res) => {
         const dateLineY = 691;
         const joiningDateLineX = 453;
         const joiningDateLineY = 442;
+        const refNumberX = 112;
+        const refNumberY = 691;
 
-        // To text
+        firstPage.drawText(fullRefNumber, {
+            x: refNumberX,
+            y: refNumberY,
+            size: 10,
+            font: timesRomanBoldFont,
+            color: rgb(0, 0, 0),
+        });
+
         firstPage.drawText(`${name},`, {
             x: toLineX,
             y: toLineY,
@@ -54,7 +77,6 @@ app.post('/generate-pdf', async (req, res) => {
             color: rgb(0, 0, 0),
         });
 
-        // Dear text
         firstPage.drawText(`${name},`, {
             x: dearLineX,
             y: dearLineY,
@@ -63,7 +85,6 @@ app.post('/generate-pdf', async (req, res) => {
             color: rgb(0, 0, 0),
         });
 
-        // Date text
         firstPage.drawText(formattedDate, {
             x: dateLineX,
             y: dateLineY,
@@ -71,8 +92,7 @@ app.post('/generate-pdf', async (req, res) => {
             font: timesRomanBoldFont,
             color: rgb(0, 0, 0),
         });
-        
-        // Joining date text
+
         firstPage.drawText(formattedJoiningDate, {
             x: joiningDateLineX,
             y: joiningDateLineY,
