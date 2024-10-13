@@ -30,13 +30,17 @@ app.post('/generate-pdf', async (req, res) => {
         const firstPage = pages[0];
         const timesRomanBoldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
 
-        // Define the coordinates to place the user's name
-        const toLineX = 65; // X-coordinate for below "To"
-        const toLineY = 625; // Y-coordinate for below "To"
-        const dearLineX = 87; // X-coordinate for after "Dear"
-        const dearLineY = 580; // Y-coordinate for "Dear"
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}.${(currentDate.getMonth() + 1).toString().padStart(2, '0')}.${currentDate.getFullYear()}`;
 
-        // Add the user's name below the "To" line in bold
+        const toLineX = 65;
+        const toLineY = 625;
+        const dearLineX = 87;
+        const dearLineY = 580;
+        const dateLineX = 485;
+        const dateLineY = 691;
+
+        // To text
         firstPage.drawText(`${name},`, {
             x: toLineX,
             y: toLineY,
@@ -45,11 +49,20 @@ app.post('/generate-pdf', async (req, res) => {
             color: rgb(0, 0, 0),
         });
 
-        // Add the user's name after the "Dear" word in bold
+        // Dear text
         firstPage.drawText(`${name},`, {
             x: dearLineX,
             y: dearLineY,
             size: 12,
+            font: timesRomanBoldFont,
+            color: rgb(0, 0, 0),
+        });
+
+        // Date text
+        firstPage.drawText(formattedDate, {
+            x: dateLineX,
+            y: dateLineY,
+            size: 10,
             font: timesRomanBoldFont,
             color: rgb(0, 0, 0),
         });
