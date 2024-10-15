@@ -41,6 +41,16 @@ app.post('/generate-pdf', async (req, res) => {
         const firstPage = pages[0];
         const timesRomanBoldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
 
+        const drawText = (text, x, y, size) => {
+            return firstPage.drawText(text, {
+                x,
+                y,
+                size,
+                font: timesRomanBoldFont,
+                color: rgb(0, 0, 0),
+            });
+        };
+
         const currentDate = new Date();
         const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}.${(currentDate.getMonth() + 1).toString().padStart(2, '0')}.${currentDate.getFullYear()}`;
 
@@ -50,56 +60,19 @@ app.post('/generate-pdf', async (req, res) => {
         const refNumber = getNextReferenceNumber();
         const fullRefNumber = `SCALEJOBS/ASSOCIATE/${refNumber}`;
 
-        const toLineX = 65;
-        const toLineY = 625;
-        const dearLineX = 87;
-        const dearLineY = 580;
-        const dateLineX = 485;
-        const dateLineY = 691;
-        const joiningDateLineX = 453;
-        const joiningDateLineY = 442;
-        const refNumberX = 112;
-        const refNumberY = 691;
+        const coordinates = {
+            refNumber: { x: 112, y: 691 },
+            toLine: { x: 65, y: 625 },
+            dearLine: { x: 87, y: 580 },
+            dateLine: { x: 485, y: 691 },
+            joiningDateLine: { x: 453, y: 442 },
+        };
 
-        firstPage.drawText(fullRefNumber, {
-            x: refNumberX,
-            y: refNumberY,
-            size: 10,
-            font: timesRomanBoldFont,
-            color: rgb(0, 0, 0),
-        });
-
-        firstPage.drawText(`${name},`, {
-            x: toLineX,
-            y: toLineY,
-            size: 12,
-            font: timesRomanBoldFont,
-            color: rgb(0, 0, 0),
-        });
-
-        firstPage.drawText(`${name},`, {
-            x: dearLineX,
-            y: dearLineY,
-            size: 10,
-            font: timesRomanBoldFont,
-            color: rgb(0, 0, 0),
-        });
-
-        firstPage.drawText(formattedDate, {
-            x: dateLineX,
-            y: dateLineY,
-            size: 10,
-            font: timesRomanBoldFont,
-            color: rgb(0, 0, 0),
-        });
-
-        firstPage.drawText(formattedJoiningDate, {
-            x: joiningDateLineX,
-            y: joiningDateLineY,
-            size: 10,
-            font: timesRomanBoldFont,
-            color: rgb(0, 0, 0),
-        });
+        drawText(fullRefNumber, coordinates.refNumber.x, coordinates.refNumber.y, 10);
+        drawText(`${name},`, coordinates.toLine.x, coordinates.toLine.y, 12);
+        drawText(`${name},`, coordinates.dearLine.x, coordinates.dearLine.y, 10);
+        drawText(formattedDate, coordinates.dateLine.x, coordinates.dateLine.y, 10);
+        drawText(formattedJoiningDate, coordinates.joiningDateLine.x, coordinates.joiningDateLine.y, 10);
 
         const pdfBytes = await pdfDoc.save();
         // These headers will signal browser to download the file
