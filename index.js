@@ -102,6 +102,7 @@ app.post('/generate-pdf', async (req, res) => {
         });
 
         const pdfBytes = await pdfDoc.save();
+        // These headers will signal browser to download the file
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="OfferLetter_${name}.pdf"`);
         res.send(Buffer.from(pdfBytes));
