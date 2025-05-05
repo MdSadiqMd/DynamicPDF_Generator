@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.1",
+    "jspdf": "^3.0.1",
     "nodemon": "^3.1.7",
     "pdf-lib": "^1.17.1"
   }
